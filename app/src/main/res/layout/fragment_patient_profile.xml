@@ -1,0 +1,30 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context="com.nbn.cloudbasedpatientreferralsystem.patient.PatientProfileFragment">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="Doctor's Profile"
+        android:textAlignment="center"/>
+
+
+    <Button
+        android:id="@+id/btn_edit_profile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Edit Profile"/>
+
+    <Button
+        android:id="@+id/btn_add_photos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Reports"/>
+
+    <!--@TODO Show all the information available about the patient -->
+
+</LinearLayout>

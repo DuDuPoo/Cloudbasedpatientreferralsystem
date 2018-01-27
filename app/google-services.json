@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "928826052394",
+    "firebase_url": "https://cloudbasedpatientreferralsyste.firebaseio.com",
+    "project_id": "cloudbasedpatientreferralsyste",
+    "storage_bucket": "cloudbasedpatientreferralsyste.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:928826052394:android:2fcf5cbafec4d31b",
+        "android_client_info": {
+          "package_name": "com.nbn.cloudbasedpatientreferralsystem"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "928826052394-7su72i875otfqldfessobsipptti7jsc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nbn.cloudbasedpatientreferralsystem",
+            "certificate_hash": "9bd8cd530ab43044ea8272814de7fa17af69778c"
+          }
+        },
+        {
+          "client_id": "928826052394-d7huo788ljjv9auput7im1q57985cju2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxo7zoms8xtLQ7NyT-bxl80jD-MnNt53A"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "928826052394-d7huo788ljjv9auput7im1q57985cju2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
