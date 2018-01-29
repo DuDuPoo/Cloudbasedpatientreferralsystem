@@ -65,28 +65,23 @@ public class DoctorProfileFragment extends Fragment
                 startActivity(intent);
             }
         });
-        new GetProfileTask(Constants.VALUE_LOGIN_INTENT_DOCTOR).execute();
+        new GetProfileTask().execute();
         return rootView;
     }
 
     private class GetProfileTask extends AsyncTask<String, Void, Void> {
 
-        String profile;
         FirebaseDatabase firebaseDatabase;
         DatabaseReference rootDatabaseReference;
         DatabaseReference databaseReference;
         FirebaseUser user;
         DoctorProfile doctorProfile;
 
-        GetProfileTask(String profile) {
-            this.profile = profile;
+        GetProfileTask() {
             firebaseDatabase = FirebaseDatabase.getInstance();
             rootDatabaseReference = firebaseDatabase.getReference();
             user = FirebaseAuth.getInstance().getCurrentUser();
-            if(profile.equals(Constants.VALUE_LOGIN_INTENT_DOCTOR))
-                databaseReference = rootDatabaseReference.child(Constants.ROOT_DOCTORS).child(user.getUid()).child(Constants.DOCTOR_INFO).getRef();
-            else
-                databaseReference = rootDatabaseReference.child(Constants.ROOT_PATIENTS).child(user.getUid()).child(Constants.PATIENT_INFO).getRef();
+            databaseReference = rootDatabaseReference.child(Constants.ROOT_DOCTORS).child(user.getUid()).child(Constants.DOCTOR_INFO).getRef();
         }
 
         @Override
