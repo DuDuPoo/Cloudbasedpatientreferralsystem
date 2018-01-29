@@ -24,6 +24,14 @@
         android:layout_below="@id/doc_image"
         android:padding="16dp"/>
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        />
+
     <ImageButton
         android:id="@+id/btn_upload"
         android:layout_width="@dimen/fab_size"

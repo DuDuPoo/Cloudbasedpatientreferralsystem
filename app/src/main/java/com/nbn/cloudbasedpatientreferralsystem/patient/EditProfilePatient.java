@@ -42,11 +42,14 @@ public class EditProfilePatient extends BaseActivity
     //Misc
     private String gender = "";
 
+    FirebaseUser user;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile_patient);
+        user = FirebaseAuth.getInstance().getCurrentUser();
         databaseReference = rootDatabaseReference.child(Constants.ROOT_PATIENTS).child(user.getUid()).child(Constants.PATIENT_INFO).getRef();
         initLayout();
     }
@@ -107,7 +110,7 @@ public class EditProfilePatient extends BaseActivity
                     {
                         if (!gender.equals(""))
                         {
-                            PatientProfile patient = new PatientProfile();
+                            final PatientProfile patient = new PatientProfile();
                             patient.setContactNo(etContact.getText().toString());
                             patient.setDob(etDob.getText().toString());
                             patient.setEmail(user.getEmail());
@@ -125,7 +128,11 @@ public class EditProfilePatient extends BaseActivity
                                 public void onComplete(@NonNull Task<Void> task)
                                 {
                                     if (task.isSuccessful())
+                                    {
+                                        rootPatientProfile = new PatientProfile(patient);
+                                        Log.d(TAG, "onComplete: "+rootPatientProfile);
                                         finish();
+                                    }
                                     else
                                     {
                                         Log.d(TAG, "onComplete: " + task.getException());

@@ -1,10 +1,12 @@
 package com.nbn.cloudbasedpatientreferralsystem.pojo;
 
+import java.io.Serializable;
+
 /**
  * Created by dudupoo on 27/1/18.
  */
 
-public class DocumentInfo
+public class DocumentInfo implements Serializable
 {
     private String docName;
     private String imageUrl;

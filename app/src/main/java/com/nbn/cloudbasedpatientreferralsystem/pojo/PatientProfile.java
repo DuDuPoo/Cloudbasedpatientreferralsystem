@@ -12,17 +12,28 @@ import java.util.Set;
 
 public class PatientProfile implements Serializable
 {
-    public String name;
-    public String contactNo;
-    public String email;
-    public String dob;
-    public String firebaseId;
-    public String photoURL;
-    public String gender;
-    public String disease;
+    private String name;
+    private String contactNo;
+    private String email;
+    private String dob;
+    private String firebaseId;
+    private String photoURL;
+    private String gender;
+    private String disease;
 
     public PatientProfile()
     {
+    }
+
+    public PatientProfile(PatientProfile p) {
+        name = p.getName();
+        contactNo = p.getContactNo();
+        email = p.getEmail();
+        dob = p.getDob();
+        firebaseId = p.getFirebaseId();
+        photoURL = p.getPhotoURL();
+        gender = p.getGender();
+        disease = p.getDisease();
     }
 
     @Override

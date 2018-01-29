@@ -8,16 +8,27 @@ import java.io.Serializable;
 
 public class DoctorProfile implements Serializable
 {
-    public String name;
-    public String contactNo;
-    public String email;
-    public String dob;
-    public String firebaseId;
-    public String photoURL;
-    public String gender;
-    public String specialization;
+    private String name;
+    private String contactNo;
+    private String email;
+    private String dob;
+    private String firebaseId;
+    private String photoURL;
+    private String gender;
+    private String specialization;
 
     public DoctorProfile() {}
+
+    public DoctorProfile(DoctorProfile d) {
+        this.name = d.getName();
+        this.contactNo = d.getContactNo();
+        this.email = d.getEmail();
+        this.dob = d.getDob();
+        this.firebaseId = d.getFirebaseId();
+        this.photoURL = d.getPhotoURL();
+        this.gender = d.getGender();
+        this.specialization = d.getSpecialization();
+    }
 
     @Override
     public String toString()

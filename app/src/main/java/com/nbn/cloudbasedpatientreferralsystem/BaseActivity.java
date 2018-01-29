@@ -9,6 +9,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.nbn.cloudbasedpatientreferralsystem.pojo.DoctorProfile;
+import com.nbn.cloudbasedpatientreferralsystem.pojo.PatientProfile;
 import com.nbn.cloudbasedpatientreferralsystem.utils.Constants;
 import com.nbn.cloudbasedpatientreferralsystem.utils.PrefManager;
 
@@ -19,8 +21,8 @@ public class BaseActivity extends AppCompatActivity
     protected DatabaseReference rootDatabaseReference;
     protected DatabaseReference databaseReference;
     protected StorageReference rootStorageReference;
-    protected StorageReference storageReference;
-    protected FirebaseUser user;
+    public static PatientProfile rootPatientProfile;
+    public static DoctorProfile rootDoctorProfile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -30,7 +32,24 @@ public class BaseActivity extends AppCompatActivity
         firebaseDatabase = FirebaseDatabase.getInstance();
         rootDatabaseReference = firebaseDatabase.getReference();
         rootStorageReference = FirebaseStorage.getInstance().getReference();
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        storageReference = rootStorageReference.child(user.getUid());
     }
+
+    public DatabaseReference getRootDatabaseReference()
+    {
+        return rootDatabaseReference;
+    }
+
+    public void setRootDatabaseReference(DatabaseReference rootDatabaseReference)
+    {
+        this.rootDatabaseReference = rootDatabaseReference;
+    }
+
+    /*
+    * When user goes to HomePageActivity with haphazard profile,
+    * 1- Ask him to update his profile by using editProfile button.
+    * 2- Map the object created in EditDocProfile/EditPatientProfile to the
+    *    object from BaseActivity.
+    * */
+
+    //@TODO Do not allow patient to upload document without filling the complete profile.
 }
