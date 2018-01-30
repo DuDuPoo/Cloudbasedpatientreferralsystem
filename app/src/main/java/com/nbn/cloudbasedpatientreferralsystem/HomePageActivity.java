@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
+import com.nbn.cloudbasedpatientreferralsystem.chats.ChatListFragment;
 import com.nbn.cloudbasedpatientreferralsystem.doctor.DoctorProfileFragment;
 import com.nbn.cloudbasedpatientreferralsystem.patient.PatientProfileFragment;
 import com.nbn.cloudbasedpatientreferralsystem.pojo.DoctorProfile;
@@ -93,16 +94,22 @@ public class HomePageActivity
 
             if (prefManager.getProfile().equals(VALUE_LOGIN_INTENT_PATIENT))
             {
-                /*if (position == 0)
-                {*/
-                return PatientProfileFragment.getInstance();
-//                }
+                if (position == 0)
+                {
+                    return PatientProfileFragment.getInstance();
+                } else if (position == 1)
+                {
+                    return ChatListFragment.getInstance(prefManager.getProfile());
+                }
             } else if (prefManager.getProfile().equals(VALUE_LOGIN_INTENT_DOCTOR))
             {
-                /*if (position == 0)
-                {*/
-                return DoctorProfileFragment.getInstance();
-//                }
+                if (position == 0)
+                {
+                    return DoctorProfileFragment.getInstance();
+                } else if (position == 1)
+                {
+                    return ChatListFragment.getInstance(prefManager.getProfile());
+                }
             }
             //@TODO Create a error fragment which will show something went wrong and return it from here.
             return null;

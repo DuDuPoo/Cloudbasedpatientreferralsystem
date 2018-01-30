@@ -107,7 +107,8 @@ public class PatientProfileFragment extends Fragment
         FirebaseUser user;
         PatientProfile patientProfile;
 
-        GetProfileTask() {
+        GetProfileTask()
+        {
             firebaseDatabase = FirebaseDatabase.getInstance();
             rootDatabaseReference = firebaseDatabase.getReference();
             user = FirebaseAuth.getInstance().getCurrentUser();
@@ -129,7 +130,8 @@ public class PatientProfileFragment extends Fragment
                         DocumentInfo doc = postSnapshot.getValue(DocumentInfo.class);
                         docs.add(doc);
                     }
-                    if(getActivity()!=null) {
+                    if (getActivity() != null)
+                    {
                         adapter = new CustomRecyclerAdapter(getActivity(), docs);
                         recyclerView.setAdapter(adapter);
                         //@TODO Set Progress bar here
@@ -149,8 +151,8 @@ public class PatientProfileFragment extends Fragment
                 public void onDataChange(DataSnapshot dataSnapshot)
                 {
                     patientProfile = dataSnapshot.getValue(PatientProfile.class);
-                    tvProfile.setText(patientProfile.toString());
-                    Log.d(TAG, "onCreateView: "+patientProfile.toString());
+                    if (patientProfile != null)
+                        tvProfile.setText(patientProfile.toString());
                 }
 
                 @Override

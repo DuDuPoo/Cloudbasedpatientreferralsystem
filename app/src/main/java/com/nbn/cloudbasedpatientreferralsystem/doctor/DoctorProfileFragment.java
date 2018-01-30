@@ -93,8 +93,8 @@ public class DoctorProfileFragment extends Fragment
                 public void onDataChange(DataSnapshot dataSnapshot)
                 {
                     doctorProfile = dataSnapshot.getValue(DoctorProfile.class);
-                    tvProfile.setText(doctorProfile.toString());
-                    Log.d(TAG, "onCreateView: "+doctorProfile.toString());
+                    if(doctorProfile!=null)
+                        tvProfile.setText(doctorProfile.toString());
                 }
 
                 @Override
