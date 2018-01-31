@@ -24,7 +24,7 @@ public class Constants
     public static final String PREF_MANAGER = "pref_manager";
 
     public static final String KEY_LOGIN_INTENT = "key_login_intent";
-    public static final String KEY_DOCTOR_PROFILE = "key_doctor";
+    public static final String KEY_PROFILE = "key_doctor";
     public static final String KEY_BUNDLE = "key_bundle";
 
     public static final String VALUE_LOGIN_INTENT_PATIENT = "value_patient";

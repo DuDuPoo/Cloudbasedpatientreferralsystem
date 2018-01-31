@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_below="@id/recyclerView">
+        android:layout_alignParentBottom="true">
         <EditText
             android:id="@+id/et_chat"
             android:layout_width="0dp"
@@ -34,8 +34,8 @@
             android:id="@+id/btn_send"
             android:layout_width="@dimen/fab_size"
             android:layout_height="@dimen/fab_size"
-            android:background="@color/colorAccent"
-            android:src="@drawable/ic_send_white_36dp"/>
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_send_pink_500_24dp"/>
     </LinearLayout>
 
 </RelativeLayout>

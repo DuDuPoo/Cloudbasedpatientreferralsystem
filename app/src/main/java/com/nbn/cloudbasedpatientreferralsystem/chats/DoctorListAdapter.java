@@ -73,7 +73,7 @@ public class DoctorListAdapter extends RecyclerView.Adapter<DoctorListAdapter.Do
                     //@TODO Go to chat fragment
                     Intent intent = new Intent(context, ChatScreenActivity.class);
                     Bundle bundle = new Bundle();
-                    bundle.putSerializable(Constants.KEY_DOCTOR_PROFILE, d);
+                    bundle.putString(Constants.KEY_PROFILE, d.getFirebaseId());
                     intent.putExtra(Constants.KEY_BUNDLE, bundle);
                     context.startActivity(intent);
                 }

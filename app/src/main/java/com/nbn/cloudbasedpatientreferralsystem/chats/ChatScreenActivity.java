@@ -1,6 +1,5 @@
 package com.nbn.cloudbasedpatientreferralsystem.chats;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -23,9 +22,9 @@ import com.nbn.cloudbasedpatientreferralsystem.R;
 import com.nbn.cloudbasedpatientreferralsystem.pojo.DoctorProfile;
 import com.nbn.cloudbasedpatientreferralsystem.pojo.PatientProfile;
 import com.nbn.cloudbasedpatientreferralsystem.pojo.chats.ChatUID;
-import com.nbn.cloudbasedpatientreferralsystem.utils.Constants;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.nbn.cloudbasedpatientreferralsystem.utils.Constants.*;
@@ -44,8 +43,10 @@ public class ChatScreenActivity extends BaseActivity
     private DatabaseReference chatsRef;
     private DatabaseReference chatMessagesRef;
     private DatabaseReference userChatsRef;
-    private ArrayList<String> chatUIDs;
-    private DoctorProfile doctorProfile;
+
+    private String firstUID;
+    private String secondUID;
+    private static boolean isActiveChat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -53,44 +54,77 @@ public class ChatScreenActivity extends BaseActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_screen);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        /*Here we get the one UID either patient or doctor
-        * To get the other one we will have to get it from the intent.
-        * */
-        if(prefManager.getProfile().equals(VALUE_LOGIN_INTENT_PATIENT)) {
-            doctorProfile = (DoctorProfile) getIntent().getBundleExtra(KEY_BUNDLE).getSerializable(KEY_DOCTOR_PROFILE);
-        } else {
-            //@TODO Get the patient profile here.
+        initLayout();
+
+        firstUID = getIntent().getBundleExtra(KEY_BUNDLE).getString(KEY_PROFILE);
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        secondUID = user.getUid();
+        Log.d(TAG, "onCreate: First UID :: " + firstUID + " :: secondUID :: " + user.getUid());
+        if (user.getUid().equals(firstUID))
+        {
+            finish();
+        } else
+        {
+            createNewChatThread();
         }
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        chatUIDs = new ArrayList<>();
     }
 
-    /*Step 1*/
-    private void initDatabaseRef()
+    private void postNewChat(ChatUID chatUID)
     {
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        userChatsRef = rootDatabaseReference
-                .child(USER_CHATS)
-                .child(user.getUid())
-                .getRef();
-
+        String chatUIDKey = rootDatabaseReference
+                .child(CHATS)
+                .push()
+                .getKey();
+        rootDatabaseReference.child(CHATS).child(chatUIDKey).setValue(chatUID);
+        userChatsRef.push().setValue(chatUIDKey);
     }
 
-    /*Step 2*/
-    private void retrieveChatUID()
+    private void createNewChatThread()
     {
-        userChatsRef.addValueEventListener(new ValueEventListener()
+        final ChatUID chatUID = new ChatUID();
+        chatUID.setMembers(new ArrayList<String>(Arrays.asList(firstUID, secondUID)));
+        chatUID.setLastMessageSent("");
+        userChatsRef = rootDatabaseReference.child(USER_CHATS).child(user.getUid()).getRef();
+        userChatsRef.addListenerForSingleValueEvent(new ValueEventListener()
         {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-                chatUIDs.clear();
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren())
+                if (!dataSnapshot.getChildren().iterator().hasNext())
                 {
-                    chatUIDs.add((String) postSnapshot.getValue());
-                    Log.d(TAG, "onDataChange: chatUIDs : " + chatUIDs.toString());
-                }
+                    postNewChat(chatUID);
+                } else
+                {
+                    ArrayList<ChatUID> listOfChats = new ArrayList<ChatUID>();
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren())
+                    {
+                        Log.d(TAG, "onDataChange: Key :: " + postSnapshot.getValue());
+                        listOfChats.add(postSnapshot.getValue(ChatUID.class));
+                    }
+                    if (listOfChats.size() > 0)
+                    {
+                        for (int i = 0; i < listOfChats.size(); i++)
+                        {
+                            ChatUID cUID = listOfChats.get(i);
+                            List<String> members = cUID.getMembers();
 
+                            if ((members.get(0).equals(firstUID) &&
+                                    members.get(1).equals(secondUID)) ||
+                                    ((members.get(0).equals(secondUID) &&
+                                            members.get(1).equals(firstUID))))
+                            {
+                                    /*
+                                    * Found
+                                    * */
+
+                                isActiveChat = true;
+                            } else {
+                                postNewChat(chatUID);
+                            }
+
+                        }
+                    }
+                }
             }
 
             @Override
@@ -99,44 +133,8 @@ public class ChatScreenActivity extends BaseActivity
 
             }
         });
-    }
 
-    /*Step 3*/
-    private boolean isChatUIDActive()
-    {
-        boolean result = false;
-        if (chatUIDs.size() > 0)
-        {
-            for (String cUID : chatUIDs)
-            {
-                chatsRef.child(cUID).addValueEventListener(new ValueEventListener()
-                {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot)
-                    {
-                        ChatUID chatUID = dataSnapshot.getValue(ChatUID.class);
-                        if (chatUID != null)
-                        {
-                            List<String> members = chatUID.getMembers();
-                            for (String memberUID : members)
-                            {
-
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError)
-                    {
-
-                    }
-                });
-            }
-        } else
-        {
-            /*Create a new Chat thread*/
-        }
-        return result;
+        Log.d(TAG, "createNewChatThread: Key :: ");
     }
 
     private void initLayout()
