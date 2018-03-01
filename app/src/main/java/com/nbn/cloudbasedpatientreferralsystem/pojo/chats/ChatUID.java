@@ -10,7 +10,7 @@ import java.util.List;
 public class ChatUID implements Serializable
 {
     private List<String> members;
-    private String lastMessageSent;
+    private ChatMessage lastMessageSent;
 
     public ChatUID(){}
 
@@ -33,12 +33,12 @@ public class ChatUID implements Serializable
         this.members = members;
     }
 
-    public String getLastMessageSent()
+    public ChatMessage getLastMessageSent()
     {
         return lastMessageSent;
     }
 
-    public void setLastMessageSent(String lastMessageSent)
+    public void setLastMessageSent(ChatMessage lastMessageSent)
     {
         this.lastMessageSent = lastMessageSent;
     }

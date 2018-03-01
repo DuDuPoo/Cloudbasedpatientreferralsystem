@@ -16,6 +16,16 @@ public class ChatMessage implements Serializable
     {
     }
 
+    @Override
+    public String toString()
+    {
+        return "ChatMessage{" +
+                "sentByUID='" + sentByUID + '\'' +
+                ", messageTime='" + messageTime + '\'' +
+                ", message='" + message + '\'' +
+                '}';
+    }
+
     public String getSentByUID()
     {
         return sentByUID;

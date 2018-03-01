@@ -9,16 +9,18 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.nbn.cloudbasedpatientreferralsystem.chats.ChatScreenActivity">
+    tools:context="com.nbn.cloudbasedpatientreferralsystem.chats.messages.ChatScreenActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="none">
+        android:scrollbars="none"
+        android:layout_above="@+id/editLayout">
     </android.support.v7.widget.RecyclerView>
 
     <LinearLayout
+        android:id="@+id/editLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"

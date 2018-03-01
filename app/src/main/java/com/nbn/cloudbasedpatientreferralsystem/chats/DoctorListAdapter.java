@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nbn.cloudbasedpatientreferralsystem.R;
+import com.nbn.cloudbasedpatientreferralsystem.chats.messages.ChatScreenActivity;
 import com.nbn.cloudbasedpatientreferralsystem.pojo.DoctorProfile;
 import com.nbn.cloudbasedpatientreferralsystem.utils.Constants;
 

@@ -17,6 +17,7 @@ public class Constants
     /*Chats*/
     public static final String CHATS = "chats";
     public static final String USER_CHATS = "userChats";
+    public static final String CHAT_MESSAGES = "chatMessages";
 
     /*Chats End*/
 

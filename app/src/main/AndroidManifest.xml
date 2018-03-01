@@ -33,7 +33,7 @@
         </activity>
         <activity android:name=".chats.DoctorListActivity">
         </activity>
-        <activity android:name=".chats.ChatScreenActivity">
+        <activity android:name=".chats.messages.ChatScreenActivity">
         </activity>
     </application>
 
