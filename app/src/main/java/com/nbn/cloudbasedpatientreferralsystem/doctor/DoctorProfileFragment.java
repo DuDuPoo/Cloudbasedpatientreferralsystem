@@ -1,17 +1,18 @@
 package com.nbn.cloudbasedpatientreferralsystem.doctor;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -20,12 +21,20 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.nbn.cloudbasedpatientreferralsystem.HomePageActivity;
-import com.nbn.cloudbasedpatientreferralsystem.MainActivity;
 import com.nbn.cloudbasedpatientreferralsystem.R;
-import com.nbn.cloudbasedpatientreferralsystem.patient.EditProfilePatient;
+import com.nbn.cloudbasedpatientreferralsystem.ViewProfileActivity;
 import com.nbn.cloudbasedpatientreferralsystem.pojo.DoctorProfile;
 import com.nbn.cloudbasedpatientreferralsystem.utils.Constants;
+
+import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+import java.util.Random;
 
 
 public class DoctorProfileFragment extends Fragment
@@ -33,8 +42,11 @@ public class DoctorProfileFragment extends Fragment
 
     String TAG = getClass().getSimpleName();
     private static DoctorProfileFragment doctorProfileFragment;
-    private Button btnEditProfile;
+    private ImageButton btnEditProfile;
     private TextView tvProfile;
+    private ImageView ivEmergency;
+    final String url = "tcp://iot.eclipse.org:1883";
+    MqttAndroidClient mqttAndroidClient;
 
     public DoctorProfileFragment()
     {
@@ -54,8 +66,37 @@ public class DoctorProfileFragment extends Fragment
                              Bundle savedInstanceState)
     {
         View rootView = inflater.inflate(R.layout.fragment_doctor_profile, container, false);
+        String android_id = Settings.Secure.getString(getActivity().getContentResolver(), Settings.Secure.ANDROID_ID);
+        Log.d(TAG, "connectToPublisher: "+android_id);
+        if(android_id == null) {
+            android_id = String.valueOf(new Random(10000).nextInt());
+        }
+        mqttAndroidClient = new MqttAndroidClient(getContext(), url, android_id);
+        connectToPublisher();
         tvProfile = (TextView) rootView.findViewById(R.id.tv_profile);
-        btnEditProfile = (Button) rootView.findViewById(R.id.btn_edit_profile);
+        btnEditProfile = (ImageButton) rootView.findViewById(R.id.btn_edit_profile);
+        ivEmergency = (ImageView) rootView.findViewById(R.id.emergency);
+        tvProfile.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                //Go to ViewPatientProfileActivity
+                Intent i = new Intent(getActivity(), ViewProfileActivity.class);
+                Bundle b = new Bundle();
+                b.putString(Constants.KEY_LOGIN_INTENT, Constants.VALUE_LOGIN_INTENT_DOCTOR);
+                i.putExtra(Constants.KEY_BUNDLE, b);
+                startActivity(i);
+            }
+        });
+        ivEmergency.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                subscribe();
+            }
+        });
         btnEditProfile.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -65,47 +106,62 @@ public class DoctorProfileFragment extends Fragment
                 startActivity(intent);
             }
         });
-        new GetProfileTask().execute();
+
         return rootView;
     }
 
-    private class GetProfileTask extends AsyncTask<String, Void, Void> {
+    private void connectToPublisher() {
 
-        FirebaseDatabase firebaseDatabase;
-        DatabaseReference rootDatabaseReference;
-        DatabaseReference databaseReference;
-        FirebaseUser user;
-        DoctorProfile doctorProfile;
-
-        GetProfileTask() {
-            firebaseDatabase = FirebaseDatabase.getInstance();
-            rootDatabaseReference = firebaseDatabase.getReference();
-            user = FirebaseAuth.getInstance().getCurrentUser();
-            databaseReference = rootDatabaseReference.child(Constants.ROOT_DOCTORS).child(user.getUid()).child(Constants.DOCTOR_INFO).getRef();
-        }
-
-        @Override
-        protected Void doInBackground(String... params)
+        mqttAndroidClient.setCallback(new MqttCallback()
         {
-            databaseReference.addValueEventListener(new ValueEventListener()
+            @Override
+            public void connectionLost(Throwable cause)
+            {
+                Log.d(TAG, "connectionLost: ");
+                Toast.makeText(getActivity(), "We have lost connection, please try again", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void messageArrived(String topic, MqttMessage message) throws Exception
+            {
+                Log.d(TAG, "messageArrived: "+topic+" : "+message.toString());
+            }
+
+            @Override
+            public void deliveryComplete(IMqttDeliveryToken token)
+            {
+
+            }
+        });
+    }
+
+    private synchronized void subscribe() {
+        try {
+            mqttAndroidClient.connect(null, new IMqttActionListener()
             {
                 @Override
-                public void onDataChange(DataSnapshot dataSnapshot)
+                public void onSuccess(IMqttToken asyncActionToken)
                 {
-                    doctorProfile = dataSnapshot.getValue(DoctorProfile.class);
-                    if(doctorProfile!=null)
-                        tvProfile.setText(doctorProfile.toString());
+                    try {
+                        int qos = 0;
+                        mqttAndroidClient.subscribe("get_patient", qos);
+                        Log.d(TAG, "onSuccess: ");
+
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
-                public void onCancelled(DatabaseError databaseError)
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception)
                 {
-
+                    exception.printStackTrace();
+                    Toast.makeText(getActivity(), "Something went wrong, please try again", Toast.LENGTH_SHORT).show();
                 }
             });
-            return null;
+        } catch (MqttException e) {
+            e.printStackTrace();
         }
-
-
     }
+
 }

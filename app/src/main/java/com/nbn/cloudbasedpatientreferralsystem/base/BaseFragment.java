@@ -1,4 +1,4 @@
-package com.nbn.cloudbasedpatientreferralsystem;
+package com.nbn.cloudbasedpatientreferralsystem.base;
 
 
 import android.os.Bundle;

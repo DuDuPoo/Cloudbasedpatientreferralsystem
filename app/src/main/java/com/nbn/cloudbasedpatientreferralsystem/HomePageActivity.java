@@ -7,20 +7,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
+import com.nbn.cloudbasedpatientreferralsystem.base.BaseActivity;
 import com.nbn.cloudbasedpatientreferralsystem.chats.ChatListFragment;
 import com.nbn.cloudbasedpatientreferralsystem.doctor.DoctorProfileFragment;
 import com.nbn.cloudbasedpatientreferralsystem.patient.PatientProfileFragment;
-import com.nbn.cloudbasedpatientreferralsystem.pojo.DoctorProfile;
-import com.nbn.cloudbasedpatientreferralsystem.pojo.PatientProfile;
 import com.nbn.cloudbasedpatientreferralsystem.utils.Constants;
 
 import static com.nbn.cloudbasedpatientreferralsystem.utils.Constants.*;

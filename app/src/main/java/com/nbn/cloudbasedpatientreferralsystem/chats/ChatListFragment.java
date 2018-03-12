@@ -18,7 +18,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
-import com.nbn.cloudbasedpatientreferralsystem.BaseFragment;
+import com.nbn.cloudbasedpatientreferralsystem.base.BaseFragment;
 import com.nbn.cloudbasedpatientreferralsystem.R;
 import com.nbn.cloudbasedpatientreferralsystem.chats.messages.ChatListAdapter;
 import com.nbn.cloudbasedpatientreferralsystem.pojo.chats.ChatUID;

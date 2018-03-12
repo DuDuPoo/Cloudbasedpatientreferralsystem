@@ -9,6 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:gravity="center"
     tools:context="com.nbn.cloudbasedpatientreferralsystem.CheckUserActivity">
 
     <ProgressBar
@@ -22,13 +23,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:gravity="center"
         android:visibility="gone"
         >
 
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="16dp">
 
             <AutoCompleteTextView
                 android:text="sagar@gmail.com"
@@ -44,7 +47,8 @@
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="16dp">
 
             <EditText
                 android:text="abc123"
@@ -57,18 +61,22 @@
                 android:imeOptions="actionUnspecified"
                 android:inputType="textPassword"
                 android:maxLines="1"
-                android:singleLine="true"/>
+                android:singleLine="true"
+                />
 
         </android.support.design.widget.TextInputLayout>
 
         <Button
             android:id="@+id/email_sign_in_button"
             style="?android:textAppearanceSmall"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/action_sign_in"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:background="@color/colorAccent"
+            android:textColor="@android:color/white"
+            android:padding="16dp"/>
     </LinearLayout>
 
 </RelativeLayout>

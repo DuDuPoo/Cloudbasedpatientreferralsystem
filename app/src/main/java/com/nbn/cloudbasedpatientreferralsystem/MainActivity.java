@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.view.View;
 
+import com.nbn.cloudbasedpatientreferralsystem.base.BaseActivity;
+
 import static com.nbn.cloudbasedpatientreferralsystem.utils.Constants.VALUE_LOGIN_INTENT_DOCTOR;
 import static com.nbn.cloudbasedpatientreferralsystem.utils.Constants.VALUE_LOGIN_INTENT_PATIENT;
 

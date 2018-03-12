@@ -19,7 +19,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".BaseActivity">
+        <activity android:name=".base.BaseActivity">
         </activity>
         <activity android:name=".CheckUserActivity">
         </activity>
@@ -34,6 +34,8 @@
         <activity android:name=".chats.DoctorListActivity">
         </activity>
         <activity android:name=".chats.messages.ChatScreenActivity">
+        </activity>
+        <activity android:name=".ViewProfileActivity">
         </activity>
     </application>
 

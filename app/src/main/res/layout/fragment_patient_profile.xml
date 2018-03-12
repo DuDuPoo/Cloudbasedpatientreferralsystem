@@ -1,40 +1,61 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
               tools:context="com.nbn.cloudbasedpatientreferralsystem.patient.PatientProfileFragment">
 
-    <TextView
+    <LinearLayout
+        android:id="@+id/profileLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="Patient's Profile"
-        android:textAlignment="center"/>
+        android:orientation="horizontal"
+        >
+
 
     <TextView
         android:id="@+id/tv_profile"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        />
+        android:layout_weight="5"
+        android:padding="16dp"
+        android:textSize="18sp"
+        android:text="Patient's Profile"
+        android:drawablePadding="8dp"
+        android:textAlignment="center"
+        android:drawableRight="@drawable/ic_info_blue_grey_900_24dp"
+        android:drawableEnd="@drawable/ic_info_blue_grey_900_24dp"/>
 
-
-    <Button
+    <ImageButton
         android:id="@+id/btn_edit_profile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Edit Profile"/>
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="60dp"
+        android:elevation="4dp"
+        android:src="@drawable/ic_mode_edit_blue_grey_900_24dp"
+        android:background="@android:color/transparent"
+        />
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/btn_add_photos"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add Reports"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:layout_below="@+id/profileLayout">
     </android.support.v7.widget.RecyclerView>
-</LinearLayout>
+
+    <ImageButton
+        android:id="@+id/btn_add_photos"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:background="@drawable/circle"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/ic_add_a_photo_white_24dp"
+        android:elevation="8dp"
+        android:padding="16dp"
+        android:layout_margin="16dp"/>
+</RelativeLayout>

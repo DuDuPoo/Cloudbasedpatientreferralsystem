@@ -27,6 +27,7 @@ public class Constants
     public static final String KEY_LOGIN_INTENT = "key_login_intent";
     public static final String KEY_PROFILE = "key_doctor";
     public static final String KEY_BUNDLE = "key_bundle";
+    public static final String KEY_VIEW_ID = "key_view_id";
 
     public static final String VALUE_LOGIN_INTENT_PATIENT = "value_patient";
     public static final String VALUE_LOGIN_INTENT_DOCTOR = "value_doctor";

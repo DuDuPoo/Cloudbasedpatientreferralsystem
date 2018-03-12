@@ -1,8 +1,6 @@
 package com.nbn.cloudbasedpatientreferralsystem.chats.messages;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -21,7 +19,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
-import com.nbn.cloudbasedpatientreferralsystem.BaseActivity;
+import com.nbn.cloudbasedpatientreferralsystem.base.BaseActivity;
 import com.nbn.cloudbasedpatientreferralsystem.R;
 import com.nbn.cloudbasedpatientreferralsystem.pojo.chats.ChatMessage;
 import com.nbn.cloudbasedpatientreferralsystem.pojo.chats.ChatUID;

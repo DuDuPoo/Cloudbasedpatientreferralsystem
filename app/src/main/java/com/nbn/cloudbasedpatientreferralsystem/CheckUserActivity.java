@@ -17,8 +17,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.nbn.cloudbasedpatientreferralsystem.utils.Constants;
-import com.nbn.cloudbasedpatientreferralsystem.utils.PrefManager;
+import com.nbn.cloudbasedpatientreferralsystem.base.BaseActivity;
 
 public class CheckUserActivity extends BaseActivity
 {
