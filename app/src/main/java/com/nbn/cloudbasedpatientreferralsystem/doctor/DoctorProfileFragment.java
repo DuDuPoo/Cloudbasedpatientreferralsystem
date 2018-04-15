@@ -23,6 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.nbn.cloudbasedpatientreferralsystem.R;
 import com.nbn.cloudbasedpatientreferralsystem.ViewProfileActivity;
+import com.nbn.cloudbasedpatientreferralsystem.base.BaseFragment;
 import com.nbn.cloudbasedpatientreferralsystem.pojo.DoctorProfile;
 import com.nbn.cloudbasedpatientreferralsystem.utils.Constants;
 
@@ -36,15 +37,17 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.util.Random;
 
+import static com.nbn.cloudbasedpatientreferralsystem.utils.Constants.KEY_VIEW_ID;
 
-public class DoctorProfileFragment extends Fragment
+
+public class DoctorProfileFragment extends BaseFragment
 {
 
     String TAG = getClass().getSimpleName();
     private static DoctorProfileFragment doctorProfileFragment;
     private ImageButton btnEditProfile;
     private TextView tvProfile;
-    private ImageView ivEmergency;
+    private ImageButton ivEmergency;
     final String url = "tcp://iot.eclipse.org:1883";
     MqttAndroidClient mqttAndroidClient;
 
@@ -65,7 +68,37 @@ public class DoctorProfileFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
-        View rootView = inflater.inflate(R.layout.fragment_doctor_profile, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_doctor_profile, container, false);
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        databaseReference = rootDatabaseReference.child(Constants.ROOT_DOCTORS).child(user.getUid()).child(Constants.DOCTOR_INFO).getRef();
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                Log.d(TAG, "onDataChange: ");
+                if(dataSnapshot.getValue(DoctorProfile.class) == null) {
+                    Log.d(TAG, "onDataChange: It's null");
+                    Toast.makeText(getActivity(), "Your profile is empty, we suggest you to edit \" +\n" +
+                            "                            \"and update your profile as a doctor, otherwise it won't be visible to anyone", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getActivity(), EditProfileDoctor.class);
+                    startActivity(intent);
+                } else {
+                    init(rootView);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
+        return rootView;
+    }
+
+    private void init(View rootView) {
         String android_id = Settings.Secure.getString(getActivity().getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d(TAG, "connectToPublisher: "+android_id);
         if(android_id == null) {
@@ -75,7 +108,7 @@ public class DoctorProfileFragment extends Fragment
         connectToPublisher();
         tvProfile = (TextView) rootView.findViewById(R.id.tv_profile);
         btnEditProfile = (ImageButton) rootView.findViewById(R.id.btn_edit_profile);
-        ivEmergency = (ImageView) rootView.findViewById(R.id.emergency);
+        ivEmergency = (ImageButton) rootView.findViewById(R.id.emergency);
         tvProfile.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -84,6 +117,7 @@ public class DoctorProfileFragment extends Fragment
                 //Go to ViewPatientProfileActivity
                 Intent i = new Intent(getActivity(), ViewProfileActivity.class);
                 Bundle b = new Bundle();
+                b.putString(Constants.KEY_VIEW_ID, FirebaseAuth.getInstance().getCurrentUser().getUid());
                 b.putString(Constants.KEY_LOGIN_INTENT, Constants.VALUE_LOGIN_INTENT_DOCTOR);
                 i.putExtra(Constants.KEY_BUNDLE, b);
                 startActivity(i);
@@ -107,7 +141,6 @@ public class DoctorProfileFragment extends Fragment
             }
         });
 
-        return rootView;
     }
 
     private void connectToPublisher() {
@@ -125,6 +158,12 @@ public class DoctorProfileFragment extends Fragment
             public void messageArrived(String topic, MqttMessage message) throws Exception
             {
                 Log.d(TAG, "messageArrived: "+topic+" : "+message.toString());
+                Intent i = new Intent(getActivity(), ViewProfileActivity.class);
+                Bundle b = new Bundle();
+                b.putString(KEY_VIEW_ID, message.toString());
+                b.putString(Constants.KEY_LOGIN_INTENT, Constants.VALUE_LOGIN_INTENT_PATIENT);
+                i.putExtra(Constants.KEY_BUNDLE, b);
+                startActivity(i);
             }
 
             @Override

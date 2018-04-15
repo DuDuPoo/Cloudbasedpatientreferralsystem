@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +37,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
 {
     private Context context;
     private ArrayList<ChatUID> chats;
+
+    String TAG = getClass().getSimpleName();
 
     public ChatListAdapter(Context context, ArrayList<ChatUID> chats)
     {
@@ -78,83 +81,92 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
             tvChatTime = (TextView) itemView.findViewById(R.id.tv_chat_time);
         }
 
-        void setLayout(ChatUID chatUID)
+        void setLayout(final ChatUID chatUID)
         {
+            Log.d(TAG, "setLayout: "+chatUID);
             String myUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
             String senderUID = "";
-            if (chatUID.getMembers().get(0).equals(myUID))
+            if(chatUID!=null)
             {
-                senderUID = chatUID.getMembers().get(1);
-            } else
-            {
-                senderUID = chatUID.getMembers().get(0);
-            }
-            ChatMessage msg = chatUID.getLastMessageSent();
-            String lastMsg = msg.getMessage();
-            long yourmilliseconds = Long.parseLong(msg.getMessageTime());
-            SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
-            Date resultdate = new Date(yourmilliseconds);
-            String time = sdf.format(resultdate);
-            tvChatName.setText(senderUID);
-            tvChatTime.setText(time);
-            tvLastMsg.setText(lastMsg);
-            PrefManager prefManager = new PrefManager(context);
-            firebaseDatabase = FirebaseDatabase.getInstance();
-            rootDatabaseReference = firebaseDatabase.getReference();
-            if (prefManager.getProfile().equals(Constants.VALUE_LOGIN_INTENT_DOCTOR))
-            {
-                rootDatabaseReference
-                        .child(Constants.ROOT_PATIENTS)
-                        .child(senderUID).addValueEventListener(new ValueEventListener()
+                if (chatUID.getMembers().get(0).equals(myUID))
                 {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot)
-                    {
-                        PatientProfile patientProfile = dataSnapshot.getValue(PatientProfile.class);
-                        tvChatName.setText(patientProfile.getName());
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError)
-                    {
-
-                    }
-                });
-
-            } else
-            {
-                rootDatabaseReference
-                        .child(Constants.ROOT_DOCTORS)
-                        .child(senderUID).addValueEventListener(new ValueEventListener()
+                    senderUID = chatUID.getMembers().get(1);
+                } else
                 {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot)
-                    {
-                        DoctorProfile doctorProfile = dataSnapshot.getValue(DoctorProfile.class);
-                        tvChatName.setText(doctorProfile.getName());
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError)
-                    {
-
-                    }
-                });
-            }
-
-            final String finalSenderUID = senderUID;
-            itemView.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    Intent intent = new Intent(context, ChatScreenActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putString(Constants.KEY_PROFILE, finalSenderUID);
-                    intent.putExtra(Constants.KEY_BUNDLE, bundle);
-                    context.startActivity(intent);
+                    senderUID = chatUID.getMembers().get(0);
                 }
-            });
+                ChatMessage msg = chatUID.getLastMessageSent();
+                Log.d(TAG, "setLayout: " + msg);
+                if (msg != null)
+                {
+                    String lastMsg = msg.getMessage();
+                    long yourmilliseconds = Long.parseLong(msg.getMessageTime());
+                    SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
+                    Date resultdate = new Date(yourmilliseconds);
+                    String time = sdf.format(resultdate);
+                    tvChatName.setText(senderUID);
+                    tvChatTime.setText(time);
+                    tvLastMsg.setText(lastMsg);
+                    PrefManager prefManager = new PrefManager(context);
+                    firebaseDatabase = FirebaseDatabase.getInstance();
+                    rootDatabaseReference = firebaseDatabase.getReference();
+                    if (prefManager.getProfile().equals(Constants.VALUE_LOGIN_INTENT_DOCTOR))
+                    {
+                        rootDatabaseReference
+                                .child(Constants.ROOT_PATIENTS)
+                                .child(senderUID).addValueEventListener(new ValueEventListener()
+                        {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot)
+                            {
+                                PatientProfile patientProfile = dataSnapshot.getValue(PatientProfile.class);
+                                tvChatName.setText(patientProfile.getName());
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError)
+                            {
+
+                            }
+                        });
+
+                    } else
+                    {
+                        rootDatabaseReference
+                                .child(Constants.ROOT_DOCTORS)
+                                .child(senderUID).addValueEventListener(new ValueEventListener()
+                        {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot)
+                            {
+                                DoctorProfile doctorProfile = dataSnapshot.getValue(DoctorProfile.class);
+                                tvChatName.setText(doctorProfile.getName());
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError)
+                            {
+
+                            }
+                        });
+                    }
+
+                    final String finalSenderUID = senderUID;
+                    itemView.setOnClickListener(new View.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(View v)
+                        {
+                            Intent intent = new Intent(context, ChatWindowActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putString(Constants.KEY_PROFILE, finalSenderUID);
+                            bundle.putString(Constants.KEY_USERS_CHAT_REF, chatUID.getKey());
+                            intent.putExtra(Constants.KEY_BUNDLE, bundle);
+                            context.startActivity(intent);
+                        }
+                    });
+                }
+            }
         }
     }
 }

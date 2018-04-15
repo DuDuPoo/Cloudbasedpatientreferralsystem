@@ -17,11 +17,18 @@
         android:drawableRight="@drawable/ic_info_blue_grey_900_24dp"
         android:drawableEnd="@drawable/ic_info_blue_grey_900_24dp"/>
 
-    <ImageView
+
+
+    <ImageButton
         android:id="@+id/emergency"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_centerInParent="true"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:background="@drawable/circle"
+        android:elevation="8dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_above="@id/btn_edit_profile"
+        android:layout_margin="20dp"
         android:src="@drawable/ic_warning_red_900_24dp"
         />
 

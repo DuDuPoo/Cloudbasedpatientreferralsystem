@@ -35,19 +35,6 @@ import static com.nbn.cloudbasedpatientreferralsystem.utils.Constants.USER_CHATS
  */
 public class ChatListFragment extends BaseFragment
 {
-    /*
-    * Upload the thread first and then get the key of the thread
-    * Add the same key to the active chats in the patient_info thread so that to show in active chats
-    *
-    * */
-
-    /*
-    * Each member will have its own CHAT(Along with info and photos) thread in which all the chatUID
-    * will be listed.
-    * chatMessages will be another thread alltogether with patients and doctors.
-    *   chatMessages will contain chatUID followed by messages
-    * */
-
     private RecyclerView recyclerView;
     private ImageButton btnSearchDoctors;
     private static ChatListFragment chatListFragment;
@@ -136,7 +123,7 @@ public class ChatListFragment extends BaseFragment
                 if (allChatUIDs.size() > 0)
                 {
                     Log.d(TAG, "onDataChange: " + allChatUIDs.toString());
-                    for (String cUID : allChatUIDs)
+                    for (final String cUID : allChatUIDs)
                     {
                         rootDatabaseReference.child(CHATS).child(cUID).addListenerForSingleValueEvent(new ValueEventListener()
                         {
@@ -144,6 +131,7 @@ public class ChatListFragment extends BaseFragment
                             public void onDataChange(DataSnapshot dataSnapshot)
                             {
                                 ChatUID chatUID = dataSnapshot.getValue(ChatUID.class);
+                                chatUID.setKey(cUID);
                                 chats.add(chatUID);
                                 adapter.notifyDataSetChanged();
                             }

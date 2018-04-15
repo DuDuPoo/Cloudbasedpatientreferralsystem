@@ -3,14 +3,15 @@ package com.nbn.cloudbasedpatientreferralsystem.patient;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -21,13 +22,16 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.nbn.cloudbasedpatientreferralsystem.R;
 import com.nbn.cloudbasedpatientreferralsystem.ViewProfileActivity;
+import com.nbn.cloudbasedpatientreferralsystem.base.BaseFragment;
+import com.nbn.cloudbasedpatientreferralsystem.doctor.EditProfileDoctor;
+import com.nbn.cloudbasedpatientreferralsystem.pojo.DoctorProfile;
 import com.nbn.cloudbasedpatientreferralsystem.pojo.DocumentInfo;
 import com.nbn.cloudbasedpatientreferralsystem.pojo.PatientProfile;
 import com.nbn.cloudbasedpatientreferralsystem.utils.Constants;
 
 import java.util.ArrayList;
 
-public class PatientProfileFragment extends Fragment
+public class PatientProfileFragment extends BaseFragment
 {
     private static PatientProfileFragment patientProfileFragment;
     private ImageButton btnEditProfile;
@@ -39,7 +43,7 @@ public class PatientProfileFragment extends Fragment
 
     String TAG = getClass().getSimpleName();
 
-    FirebaseUser firebaseUser;
+    FirebaseUser user;
 
     public PatientProfileFragment()
     {
@@ -62,8 +66,34 @@ public class PatientProfileFragment extends Fragment
                              Bundle savedInstanceState)
     {
         docs = new ArrayList<>();
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        View rootView = inflater.inflate(R.layout.fragment_patient_profile, container, false);
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        final View rootView = inflater.inflate(R.layout.fragment_patient_profile, container, false);
+        databaseReference = rootDatabaseReference.child(Constants.ROOT_PATIENTS).child(user.getUid()).child(Constants.PATIENT_INFO).getRef();
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                if(dataSnapshot.getValue(PatientProfile.class) == null) {
+                    Log.d(TAG, "onDataChange: It's null");
+                    Toast.makeText(getActivity(), "Your profile is empty, we suggest you to edit your profile and give us information", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getActivity(), EditProfilePatient.class);
+                    startActivity(intent);
+                } else {
+                    init(rootView);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
+        return rootView;
+    }
+
+    private void init(View rootView) {
         btnEditProfile = (ImageButton) rootView.findViewById(R.id.btn_edit_profile);
         tvProfile = (TextView) rootView.findViewById(R.id.tv_profile);
         btnAddPhotos = (ImageButton) rootView.findViewById(R.id.btn_add_photos);
@@ -93,16 +123,16 @@ public class PatientProfileFragment extends Fragment
             @Override
             public void onClick(View v)
             {
-               //Go to ViewPatientProfileActivity
+                //Go to ViewPatientProfileActivity
                 Intent i = new Intent(getActivity(), ViewProfileActivity.class);
                 Bundle b = new Bundle();
+                b.putString(Constants.KEY_VIEW_ID, FirebaseAuth.getInstance().getCurrentUser().getUid());
                 b.putString(Constants.KEY_LOGIN_INTENT, Constants.VALUE_LOGIN_INTENT_PATIENT);
                 i.putExtra(Constants.KEY_BUNDLE, b);
                 startActivity(i);
             }
         });
         new GetProfileTask().execute();
-        return rootView;
     }
 
     private class GetProfileTask extends AsyncTask<String, Void, Void>

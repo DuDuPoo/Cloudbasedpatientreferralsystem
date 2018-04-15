@@ -3,6 +3,7 @@ package com.nbn.cloudbasedpatientreferralsystem.patient;
 import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,10 +25,12 @@ public class CustomRecyclerAdapter extends RecyclerView.Adapter<CustomRecyclerAd
 {
     ArrayList<DocumentInfo> docs;
     Context context;
+    String TAG = getClass().getSimpleName();
 
     public CustomRecyclerAdapter(Context context, ArrayList<DocumentInfo> docs) {
         this.docs = docs;
         this.context = context;
+        Log.d(TAG, "CustomRecyclerAdapter: ");
     }
 
     @Override

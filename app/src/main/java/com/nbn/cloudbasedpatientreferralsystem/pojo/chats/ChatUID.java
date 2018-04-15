@@ -11,6 +11,18 @@ public class ChatUID implements Serializable
 {
     private List<String> members;
     private ChatMessage lastMessageSent;
+    private String key;
+
+
+    public String getKey()
+    {
+        return key;
+    }
+
+    public void setKey(String key)
+    {
+        this.key = key;
+    }
 
     public ChatUID(){}
 

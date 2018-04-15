@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.nbn.cloudbasedpatientreferralsystem.utils.Constants.*;
+
 public class ViewProfileActivity extends BaseActivity
 {
     String TAG = getClass().getSimpleName();
@@ -46,72 +48,71 @@ public class ViewProfileActivity extends BaseActivity
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
     LinearLayoutManager linearLayoutManager;
-    private ArrayList<DocumentInfo> docs;
+    private ArrayList<DocumentInfo> docs = new ArrayList<>();
     private CustomRecyclerAdapter adapter;
+
+    private DoctorProfile doctorProfile;
+    private PatientProfile patientProfile;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_profile);
-        Log.d(TAG, "onCreate: " + getIntent());
+        ButterKnife.bind(this);
 
         Intent i = getIntent();
         Bundle b = i.getBundleExtra(Constants.KEY_BUNDLE);
         String intentString = b.getString(Constants.KEY_LOGIN_INTENT);
-        Log.d(TAG, "onCreate: " + intentString);
         uid = b.getString(Constants.KEY_VIEW_ID);
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (uid == null)
-        {
-            uid = firebaseUser.getUid();
-        }
         Log.d(TAG, "onCreate: " + uid);
 
-        if (uid.equals("") || uid == null ||
-                intentString.equals("") || intentString == null)
-        {
-            finish();
-        } else if(intentString.equals(Constants.VALUE_LOGIN_INTENT_PATIENT))
-        {
-            ButterKnife.bind(this);
-            initPatientProfile();
-            if (!firebaseUser.getUid().equals(uid))
-            {
-                recyclerView.setVisibility(View.VISIBLE);
-                initImages();
-            }
-        } else if(intentString.equals(Constants.VALUE_LOGIN_INTENT_DOCTOR)) {
-            ButterKnife.bind(this);
-            initDoctorProfile();
-        }
-    }
-
-    private void initDoctorProfile() {
-        new GetDoctorProfileTask().execute();
-    }
-
-    private void initImages()
-    {
-        new GetProfileTask().execute();
-    }
-
-    private void initPatientProfile()
-    {
-        databaseReference.addValueEventListener(new ValueEventListener()
+        rootDatabaseReference.child(ROOT_PATIENTS).child(uid).child(PATIENT_INFO).addListenerForSingleValueEvent(new ValueEventListener()
         {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-                PatientProfile patientProfile = dataSnapshot.getValue(PatientProfile.class);
-                if (patientProfile != null)
+                if (dataSnapshot.getValue(PatientProfile.class) != null)
                 {
-                    tvName.setText("Name : " + patientProfile.getName());
-                    tvContact.setText("Contact : " + patientProfile.getContactNo());
-                    tvEmail.setText("Email ID : " + patientProfile.getEmail());
-                    tvGender.setText("Gender : " + patientProfile.getGender());
-                    tvDob.setText("Date of Birth : " + patientProfile.getDob());
-                }
+                    patientProfile = dataSnapshot.getValue(PatientProfile.class);
+                    if (patientProfile != null)
+                    {
+                        tvName.setText("Name : " + patientProfile.getName());
+                        tvContact.setText("Contact : " + patientProfile.getContactNo());
+                        tvEmail.setText("Email ID : " + patientProfile.getEmail());
+                        tvGender.setText("Gender : " + patientProfile.getGender());
+                        tvDob.setText("Date of Birth : " + patientProfile.getDob());
+                        Log.d(TAG, "onDataChange: " + patientProfile);
+                    }
+                    rootDatabaseReference
+                            .child(ROOT_PATIENTS)
+                            .child(uid)
+                            .child(PATIENT_DOCS)
+                            .addValueEventListener(new ValueEventListener()
+                            {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot)
+                                {
+                                    docs.clear();
+                                    Log.d(TAG, "onPhotoDataChange: " + dataSnapshot.getChildrenCount());
+                                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren())
+                                    {
+                                        DocumentInfo doc = postSnapshot.getValue(DocumentInfo.class);
+                                        docs.add(doc);
+                                    }
+                                    adapter = new CustomRecyclerAdapter(ViewProfileActivity.this, docs);
+                                    recyclerView.setAdapter(adapter);
+                                    //@TODO Set Progress bar here
 
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError)
+                                {
+
+                                }
+                            });
+                }
             }
 
             @Override
@@ -120,7 +121,58 @@ public class ViewProfileActivity extends BaseActivity
 
             }
         });
+
+        rootDatabaseReference.child(ROOT_DOCTORS).child(uid).child(DOCTOR_INFO).addListenerForSingleValueEvent(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                if (dataSnapshot.getValue(DoctorProfile.class) != null)
+                {
+                    doctorProfile = dataSnapshot.getValue(DoctorProfile.class);
+                    if (doctorProfile != null)
+                    {
+                        tvName.setText("Name : " + doctorProfile.getName());
+                        tvContact.setText("Contact : " + doctorProfile.getContactNo());
+                        tvEmail.setText("Email ID : " + doctorProfile.getEmail());
+                        tvGender.setText("Gender : " + doctorProfile.getGender());
+                        tvDob.setText("Specialization : " + doctorProfile.getSpecialization());
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
+
+        /*if (patientProfile != null && doctorProfile != null)
+        {
+            Log.d(TAG, "onCreate: Found in both the roots");
+        } else if (patientProfile != null)
+        {
+            recyclerView.setVisibility(View.VISIBLE);
+            initImages();
+        } else if (doctorProfile != null)
+        {
+            initDoctorProfile();
+        }*/
+
     }
+
+    private void initDoctorProfile()
+    {
+        new GetDoctorProfileTask().execute();
+    }
+
+    private void initImages()
+    {
+        new GetProfileTask().execute();
+    }
+
 
     private class GetProfileTask extends AsyncTask<String, Void, Void>
     {
@@ -135,19 +187,44 @@ public class ViewProfileActivity extends BaseActivity
             firebaseDatabase = FirebaseDatabase.getInstance();
             rootDatabaseReference = firebaseDatabase.getReference();
             user = FirebaseAuth.getInstance().getCurrentUser();
-            databaseReference = rootDatabaseReference.child(Constants.ROOT_PATIENTS).child(user.getUid()).child(Constants.PATIENT_INFO).getRef();
-            docsDatabaseReference = rootDatabaseReference.child(Constants.ROOT_PATIENTS).child(user.getUid()).child(Constants.PATIENT_DOCS).getRef();
+            databaseReference = rootDatabaseReference.child(Constants.ROOT_PATIENTS).child(uid).child(Constants.PATIENT_INFO).getRef();
+            docsDatabaseReference = rootDatabaseReference.child(Constants.ROOT_PATIENTS).child(uid).child(Constants.PATIENT_DOCS).getRef();
         }
 
         @Override
         protected Void doInBackground(String... params)
         {
+            databaseReference.addValueEventListener(new ValueEventListener()
+            {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot)
+                {
+                    PatientProfile patientProfile = dataSnapshot.getValue(PatientProfile.class);
+                    if (patientProfile != null)
+                    {
+                        tvName.setText("Name : " + patientProfile.getName());
+                        tvContact.setText("Contact : " + patientProfile.getContactNo());
+                        tvEmail.setText("Email ID : " + patientProfile.getEmail());
+                        tvGender.setText("Gender : " + patientProfile.getGender());
+                        tvDob.setText("Date of Birth : " + patientProfile.getDob());
+                        Log.d(TAG, "onDataChange: " + patientProfile);
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError)
+                {
+
+                }
+            });
             docsDatabaseReference.addValueEventListener(new ValueEventListener()
             {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot)
                 {
                     docs.clear();
+                    Log.d(TAG, "onPhotoDataChange: " + dataSnapshot.getChildrenCount());
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren())
                     {
                         DocumentInfo doc = postSnapshot.getValue(DocumentInfo.class);
@@ -172,7 +249,9 @@ public class ViewProfileActivity extends BaseActivity
 
     }
 
-    private class GetDoctorProfileTask extends AsyncTask<String, Void, Void> {
+
+    private class GetDoctorProfileTask extends AsyncTask<String, Void, Void>
+    {
 
         FirebaseDatabase firebaseDatabase;
         DatabaseReference rootDatabaseReference;
@@ -180,11 +259,12 @@ public class ViewProfileActivity extends BaseActivity
         FirebaseUser user;
         DoctorProfile doctorProfile;
 
-        GetDoctorProfileTask() {
+        GetDoctorProfileTask()
+        {
             firebaseDatabase = FirebaseDatabase.getInstance();
             rootDatabaseReference = firebaseDatabase.getReference();
             user = FirebaseAuth.getInstance().getCurrentUser();
-            databaseReference = rootDatabaseReference.child(Constants.ROOT_DOCTORS).child(user.getUid()).child(Constants.DOCTOR_INFO).getRef();
+            databaseReference = rootDatabaseReference.child(Constants.ROOT_DOCTORS).child(uid).child(Constants.DOCTOR_INFO).getRef();
         }
 
         @Override
@@ -196,7 +276,9 @@ public class ViewProfileActivity extends BaseActivity
                 public void onDataChange(DataSnapshot dataSnapshot)
                 {
                     doctorProfile = dataSnapshot.getValue(DoctorProfile.class);
-                    if(doctorProfile!=null) {
+                    Log.d(TAG, "onDataChange: " + doctorProfile);
+                    if (doctorProfile != null)
+                    {
                         tvName.setText("Name : " + doctorProfile.getName());
                         tvContact.setText("Contact : " + doctorProfile.getContactNo());
                         tvEmail.setText("Email ID : " + doctorProfile.getEmail());

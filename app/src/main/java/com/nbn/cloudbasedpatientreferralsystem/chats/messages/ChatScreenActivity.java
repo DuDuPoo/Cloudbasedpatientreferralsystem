@@ -1,11 +1,13 @@
 package com.nbn.cloudbasedpatientreferralsystem.chats.messages;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -19,10 +21,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.nbn.cloudbasedpatientreferralsystem.ViewProfileActivity;
 import com.nbn.cloudbasedpatientreferralsystem.base.BaseActivity;
 import com.nbn.cloudbasedpatientreferralsystem.R;
 import com.nbn.cloudbasedpatientreferralsystem.pojo.chats.ChatMessage;
 import com.nbn.cloudbasedpatientreferralsystem.pojo.chats.ChatUID;
+import com.nbn.cloudbasedpatientreferralsystem.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,8 +53,10 @@ public class ChatScreenActivity extends BaseActivity
     private String secondUID;
     private static String chatUIDKey;
     private static boolean isActiveChat;
+    private static boolean isFound;
     final ArrayList<ChatMessage> chatMessages = new ArrayList<>();
     final ChatMessagesAdapter adapter = new ChatMessagesAdapter(this, chatMessages);
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -74,14 +80,17 @@ public class ChatScreenActivity extends BaseActivity
 
     private void postNewChat(ChatUID chatUID)
     {
+        Log.d(TAG, "postNewChat: Hello");
         chatUIDKey = rootDatabaseReference
                 .child(CHATS)
                 .push()
                 .getKey();
         rootDatabaseReference.child(CHATS).child(chatUIDKey).setValue(chatUID);
-        userChatsRef.setValue(chatUIDKey);
-    }
+//        userChatsRef.push().setValue(chatUIDKey);
+        rootDatabaseReference.child(USER_CHATS).child(firstUID).push().setValue(chatUIDKey);
+        rootDatabaseReference.child(USER_CHATS).child(secondUID).push().setValue(chatUIDKey);
 
+    }
 
     // @STEP 1
     private void createNewChatThread()
@@ -126,9 +135,9 @@ public class ChatScreenActivity extends BaseActivity
                                             ((members.get(0).equals(secondUID) &&
                                                     members.get(1).equals(firstUID))))
                                     {
-                                    /*
-                                    * Found
-                                    * */
+                                        /*
+                                         * Found
+                                         * */
 //                                        chatUIDKey = cUID;
                                         setChatUIDKey(cUID);
                                         chatUID.setLastMessageSent(tempChatUID.getLastMessageSent());
@@ -136,9 +145,6 @@ public class ChatScreenActivity extends BaseActivity
                                         Log.d(TAG, "onDataChange: FINALLYY//////////");
                                         isActiveChat = true;
                                         updatUI();
-                                    } else
-                                    {
-                                        postNewChat(chatUID);
                                     }
                                 }
 
@@ -148,6 +154,10 @@ public class ChatScreenActivity extends BaseActivity
 
                                 }
                             });
+                        }
+                        if(!isActiveChat) {
+                            Log.d(TAG, "onDataChange: We did not found anything so goind back to postNewChat()");
+                            postNewChat(chatUID);
                         }
                     }
                 }
@@ -184,7 +194,10 @@ public class ChatScreenActivity extends BaseActivity
                     /*if(chatUIDKey!=null)
                         rootDatabaseReference.child(USER_CHATS).child(firstUID).push().setValue(chatUIDKey);
 */
-                    rootDatabaseReference.child(USER_CHATS).child(firstUID).addListenerForSingleValueEvent(new ValueEventListener()
+                    rootDatabaseReference
+                            .child(USER_CHATS)
+                            .child(user.getUid())
+                            .addListenerForSingleValueEvent(new ValueEventListener()
                     {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot)
@@ -192,6 +205,7 @@ public class ChatScreenActivity extends BaseActivity
                             if (!dataSnapshot.getChildren().iterator().hasNext())
                             {
                                 rootDatabaseReference.child(USER_CHATS).child(firstUID).push().setValue(chatUIDKey);
+                                rootDatabaseReference.child(USER_CHATS).child(secondUID).push().setValue(chatUIDKey);
                             } else
                             {
                                 ArrayList<String> allChatUIDs = new ArrayList<String>();
@@ -202,11 +216,9 @@ public class ChatScreenActivity extends BaseActivity
                                 }
                                 if (allChatUIDs.size() > 0)
                                 {
-
                                     for (int i = 0; i < allChatUIDs.size(); i++)
                                     {
                                         final String cUID = allChatUIDs.get(i);
-// @STEP 2
                                         DatabaseReference chatsReference;
                                         chatsReference = rootDatabaseReference.child(CHATS).child(cUID).getRef();
                                         chatsReference.addListenerForSingleValueEvent(new ValueEventListener()
@@ -215,22 +227,24 @@ public class ChatScreenActivity extends BaseActivity
                                             public void onDataChange(DataSnapshot dataSnapshot)
                                             {
                                                 ChatUID tempChatUID = dataSnapshot.getValue(ChatUID.class);
-                                                List<String> members = tempChatUID.getMembers();
-                                                if ((members.get(0).equals(firstUID) &&
-                                                        members.get(1).equals(secondUID)) ||
-                                                        ((members.get(0).equals(secondUID) &&
-                                                                members.get(1).equals(firstUID))))
+
+                                                if(tempChatUID!=null)
                                                 {
-                                    /*
-                                    * Found
-                                    * */
+                                                    List<String> members = tempChatUID.getMembers();
+                                                    if ((members.get(0).equals(firstUID) &&
+                                                            members.get(1).equals(secondUID)) ||
+                                                            ((members.get(0).equals(secondUID) &&
+                                                                    members.get(1).equals(firstUID))))
+                                                    {
+                                                        /*
+                                                         * Found
+                                                         * */
 
 //                                                    chatUIDKey = cUID;
-                                                    setChatUIDKey(cUID);
-                                                    Log.d(TAG, "onDataChange: FINALLYY//////////");
-                                                } else
-                                                {
-                                                    rootDatabaseReference.child(USER_CHATS).child(firstUID).setValue(chatUIDKey);
+                                                        setChatUIDKey(cUID);
+                                                        isFound = true;
+                                                        Log.d(TAG, "onDataChange: FINALLY??????????????????");
+                                                    }
                                                 }
                                             }
 
@@ -241,6 +255,11 @@ public class ChatScreenActivity extends BaseActivity
                                             }
                                         });
                                     }
+                                    /*if(!isFound) {
+                                        Log.d(TAG, "onDataChange: We did not found anything in onClick so posting a new one");
+                                        rootDatabaseReference.child(USER_CHATS).child(firstUID).push().setValue(chatUIDKey);
+                                        rootDatabaseReference.child(USER_CHATS).child(secondUID).push().setValue(chatUIDKey);
+                                    }*/
                                 }
                             }
                         }
@@ -253,13 +272,12 @@ public class ChatScreenActivity extends BaseActivity
                     });
 
                     //@TODO Need a flag to check!
-
                     ChatMessage msg = new ChatMessage();
                     msg.setMessage(etChat.getText().toString());
                     msg.setSentByUID(secondUID);
                     msg.setMessageTime(System.currentTimeMillis() + "");
-                    Log.d(TAG, "onClick: "+chatUIDKey+"/"+secondUID);
-                    Log.d(TAG, "onClick: "+msg.toString());
+                    Log.d(TAG, "onClick: " + chatUIDKey + "/" + secondUID);
+                    Log.d(TAG, "onClick: " + msg.toString());
                     rootDatabaseReference.child(CHAT_MESSAGES).child(chatUIDKey).push().setValue(msg);
                     ChatUID chatUID = new ChatUID();
                     chatUID.setMembers(Arrays.asList(firstUID, secondUID));
@@ -267,6 +285,8 @@ public class ChatScreenActivity extends BaseActivity
                     rootDatabaseReference.child(CHATS).child(chatUIDKey).setValue(chatUID);
                     etChat.setText("");
                     linearLayoutManager.scrollToPosition(chatMessages.size());
+
+
                     /*if(getChatUIDKey()!=null)
                     {
                         adapter.notifyItemInserted(chatMessages.size() - 1);
@@ -275,7 +295,7 @@ public class ChatScreenActivity extends BaseActivity
                 }
             }
         });
-        Log.d(TAG, "initLayout: ChatUIDKey :: " +chatUIDKey);
+        Log.d(TAG, "initLayout: ChatUIDKey :: " + chatUIDKey);
     }
 
     private void updatUI()
@@ -289,7 +309,7 @@ public class ChatScreenActivity extends BaseActivity
                     public void onChildAdded(DataSnapshot dataSnapshot, String s)
                     {
                         Log.d(TAG, "onChildAdded: " + dataSnapshot.getValue(ChatMessage.class));
-                        Log.d(TAG, "onChildAdded: "+s);
+                        Log.d(TAG, "onChildAdded: " + s);
                         ChatMessage cm = dataSnapshot.getValue(ChatMessage.class);
                         chatMessages.add(cm);
                         adapter.notifyItemInserted(chatMessages.size() - 1);
@@ -316,7 +336,7 @@ public class ChatScreenActivity extends BaseActivity
                     @Override
                     public void onCancelled(DatabaseError databaseError)
                     {
-                        Log.d(TAG, "onCancelled: "+databaseError.getDetails());
+                        Log.d(TAG, "onCancelled: " + databaseError.getDetails());
                     }
                 });
 
@@ -372,7 +392,9 @@ public class ChatScreenActivity extends BaseActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        return super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_chat_screen, menu);
+        return true;
     }
 
     @Override
@@ -382,6 +404,32 @@ public class ChatScreenActivity extends BaseActivity
         {
             finish();
             return true;
+        } else if(item.getItemId() == R.id.menu_info) {
+            if(prefManager.getProfile().equals(VALUE_LOGIN_INTENT_DOCTOR))
+            {
+                Intent i = new Intent(this, ViewProfileActivity.class);
+                Bundle b = new Bundle();
+                if(secondUID.equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
+                {
+                    b.putString(KEY_VIEW_ID, firstUID);
+                } else {
+                    b.putString(KEY_VIEW_ID, secondUID);
+                }
+                b.putString(Constants.KEY_LOGIN_INTENT, Constants.VALUE_LOGIN_INTENT_PATIENT);
+                i.putExtra(Constants.KEY_BUNDLE, b);
+                startActivity(i);
+            } else {
+                Intent i = new Intent(this, ViewProfileActivity.class);
+                Bundle b = new Bundle();
+                if(secondUID.equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
+                {
+                    b.putString(KEY_VIEW_ID, firstUID);
+                } else {
+                    b.putString(KEY_VIEW_ID, secondUID);
+                }                b.putString(Constants.KEY_LOGIN_INTENT, Constants.VALUE_LOGIN_INTENT_DOCTOR);
+                i.putExtra(Constants.KEY_BUNDLE, b);
+                startActivity(i);
+            }
         }
         return super.onOptionsItemSelected(item);
     }
