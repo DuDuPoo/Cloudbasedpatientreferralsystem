@@ -11,6 +11,7 @@ public class ChatMessage implements Serializable
     private String sentByUID;
     private String messageTime;
     private String message;
+    private boolean read;
 
     public ChatMessage()
     {
@@ -23,7 +24,18 @@ public class ChatMessage implements Serializable
                 "sentByUID='" + sentByUID + '\'' +
                 ", messageTime='" + messageTime + '\'' +
                 ", message='" + message + '\'' +
+                ", read=" + read +
                 '}';
+    }
+
+    public boolean isRead()
+    {
+        return read;
+    }
+
+    public void setRead(boolean read)
+    {
+        this.read = read;
     }
 
     public String getSentByUID()

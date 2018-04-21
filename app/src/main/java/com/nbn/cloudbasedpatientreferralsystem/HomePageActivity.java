@@ -1,21 +1,30 @@
 package com.nbn.cloudbasedpatientreferralsystem;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.nbn.cloudbasedpatientreferralsystem.base.BaseActivity;
 import com.nbn.cloudbasedpatientreferralsystem.chats.ChatListFragment;
+import com.nbn.cloudbasedpatientreferralsystem.chats.NotificationService;
 import com.nbn.cloudbasedpatientreferralsystem.doctor.DoctorProfileFragment;
 import com.nbn.cloudbasedpatientreferralsystem.patient.PatientProfileFragment;
 import com.nbn.cloudbasedpatientreferralsystem.utils.Constants;
+
+import java.util.ArrayList;
 
 import static com.nbn.cloudbasedpatientreferralsystem.utils.Constants.*;
 
@@ -37,6 +46,37 @@ public class HomePageActivity
         tabLayout = (TabLayout) findViewById(R.id.tablayout);
         tabLayout.setupWithViewPager(mViewPager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        startNotificationService();
+    }
+
+    private void startNotificationService() {
+        final Context context = this;
+        rootDatabaseReference
+                .child(USER_CHATS)
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .addListenerForSingleValueEvent(new ValueEventListener()
+                {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot)
+                    {
+                        ArrayList<String> userChats = new ArrayList<>();
+                        for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                            Log.d(TAG, "onDataChange: "+ds.getValue(String.class));
+                            userChats.add(ds.getValue(String.class));
+                        }
+                        if(userChats.size()>0) {
+                            Intent serviceIntent = new Intent(context, NotificationService.class);
+                            serviceIntent.putStringArrayListExtra(NOTIFICATION_SERVICE_ARRAY, userChats);
+                            startService(serviceIntent);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError)
+                    {
+
+                    }
+                });
     }
 
     @Override

@@ -19,6 +19,7 @@ public class Constants
     public static final String USER_CHATS = "userChats";
     public static final String CHAT_MESSAGES = "chatMessages";
     public static final String KEY_USERS_CHAT_REF = "keyUsersChatRef";
+    public static final String NOTIFICATION_SERVICE_ARRAY = "notification_service_array";
 
     /*Chats End*/
 

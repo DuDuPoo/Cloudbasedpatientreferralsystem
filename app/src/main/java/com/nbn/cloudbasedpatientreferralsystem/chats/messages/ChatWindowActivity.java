@@ -1,7 +1,11 @@
 package com.nbn.cloudbasedpatientreferralsystem.chats.messages;
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.media.RingtoneManager;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -51,6 +55,7 @@ public class ChatWindowActivity extends BaseActivity
     String secondUID;
     String usersChatRefKey;
     String TAG = getClass().getSimpleName();
+    NotificationManager mNotificationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -70,7 +75,7 @@ public class ChatWindowActivity extends BaseActivity
         secondUID = getIntent().getBundleExtra(KEY_BUNDLE).getString(KEY_PROFILE);
         firstUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         usersChatRefKey = getIntent().getBundleExtra(KEY_BUNDLE).getString(KEY_USERS_CHAT_REF);
-
+        final Context context = this;
         if (firstUID.equals(secondUID))
         {
             finish();
@@ -85,9 +90,21 @@ public class ChatWindowActivity extends BaseActivity
                         @Override
                         public void onChildAdded(DataSnapshot dataSnapshot, String s)
                         {
+                            String messageID = dataSnapshot.getKey();
+
                             Log.d(TAG, "onChildAdded: " + dataSnapshot.getValue(ChatMessage.class));
                             Log.d(TAG, "onChildAdded: " + s);
                             ChatMessage cm = dataSnapshot.getValue(ChatMessage.class);
+                            if(!cm.getSentByUID().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                                if(!cm.isRead()) {
+                                    cm.setRead(true);
+                                    rootDatabaseReference
+                                            .child(CHAT_MESSAGES)
+                                            .child(usersChatRefKey)
+                                            .child(messageID)
+                                            .setValue(cm);
+                                }
+                            }
                             chatMessages.add(cm);
                             adapter.notifyItemInserted(chatMessages.size() - 1);
                         }
@@ -95,7 +112,7 @@ public class ChatWindowActivity extends BaseActivity
                         @Override
                         public void onChildChanged(DataSnapshot dataSnapshot, String s)
                         {
-
+                            String messageID = dataSnapshot.getKey();
                         }
 
                         @Override
@@ -133,6 +150,7 @@ public class ChatWindowActivity extends BaseActivity
                 msg.setMessage(etChat.getText().toString());
                 msg.setSentByUID(FirebaseAuth.getInstance().getCurrentUser().getUid());
                 msg.setMessageTime(System.currentTimeMillis() + "");
+                msg.setRead(false);
                 Log.d(TAG, "onClick: " + msg.toString());
                 rootDatabaseReference.child(CHAT_MESSAGES).child(usersChatRefKey).push().setValue(msg);
                 ChatUID chatUID = new ChatUID();
