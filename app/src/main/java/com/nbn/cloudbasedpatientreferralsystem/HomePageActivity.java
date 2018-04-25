@@ -28,8 +28,7 @@ import java.util.ArrayList;
 
 import static com.nbn.cloudbasedpatientreferralsystem.utils.Constants.*;
 
-public class HomePageActivity
-        extends BaseActivity
+public class HomePageActivity extends BaseActivity
 {
     String TAG = getClass().getSimpleName();
     private SectionsPagerAdapter mSectionsPagerAdapter;

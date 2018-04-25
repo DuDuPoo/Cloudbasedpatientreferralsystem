@@ -55,7 +55,6 @@ public class ChatWindowActivity extends BaseActivity
     String secondUID;
     String usersChatRefKey;
     String TAG = getClass().getSimpleName();
-    NotificationManager mNotificationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)

@@ -56,10 +56,13 @@ public class DoctorProfileFragment extends BaseFragment
         // Required empty public constructor.
     }
 
-    public static DoctorProfileFragment getInstance() {
-        if(doctorProfileFragment!=null) {
+    public static DoctorProfileFragment getInstance()
+    {
+        if (doctorProfileFragment != null)
+        {
             return doctorProfileFragment;
-        } else {
+        } else
+        {
             return new DoctorProfileFragment();
         }
     }
@@ -78,13 +81,15 @@ public class DoctorProfileFragment extends BaseFragment
             public void onDataChange(DataSnapshot dataSnapshot)
             {
                 Log.d(TAG, "onDataChange: ");
-                if(dataSnapshot.getValue(DoctorProfile.class) == null) {
+                if (dataSnapshot.getValue(DoctorProfile.class) == null)
+                {
                     Log.d(TAG, "onDataChange: It's null");
                     Toast.makeText(getActivity(), "Your profile is empty, we suggest you to edit \" +\n" +
                             "                            \"and update your profile as a doctor, otherwise it won't be visible to anyone", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getActivity(), EditProfileDoctor.class);
                     startActivity(intent);
-                } else {
+                } else
+                {
                     init(rootView);
                 }
             }
@@ -98,10 +103,13 @@ public class DoctorProfileFragment extends BaseFragment
         return rootView;
     }
 
-    private void init(View rootView) {
-        String android_id = Settings.Secure.getString(getActivity().getContentResolver(), Settings.Secure.ANDROID_ID);
-        Log.d(TAG, "connectToPublisher: "+android_id);
-        if(android_id == null) {
+    private void init(View rootView)
+    {
+        String android_id = "";
+        if (getActivity() != null)
+            android_id = Settings.Secure.getString(getActivity().getContentResolver(), Settings.Secure.ANDROID_ID);
+        if (android_id == null)
+        {
             android_id = String.valueOf(new Random(10000).nextInt());
         }
         mqttAndroidClient = new MqttAndroidClient(getContext(), url, android_id);
@@ -143,7 +151,8 @@ public class DoctorProfileFragment extends BaseFragment
 
     }
 
-    private void connectToPublisher() {
+    private void connectToPublisher()
+    {
 
         mqttAndroidClient.setCallback(new MqttCallback()
         {
@@ -157,7 +166,7 @@ public class DoctorProfileFragment extends BaseFragment
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception
             {
-                Log.d(TAG, "messageArrived: "+topic+" : "+message.toString());
+                Log.d(TAG, "messageArrived: " + topic + " : " + message.toString());
                 Intent i = new Intent(getActivity(), ViewProfileActivity.class);
                 Bundle b = new Bundle();
                 b.putString(KEY_VIEW_ID, message.toString());
@@ -174,19 +183,23 @@ public class DoctorProfileFragment extends BaseFragment
         });
     }
 
-    private synchronized void subscribe() {
-        try {
+    private synchronized void subscribe()
+    {
+        try
+        {
             mqttAndroidClient.connect(null, new IMqttActionListener()
             {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken)
                 {
-                    try {
+                    try
+                    {
                         int qos = 0;
                         mqttAndroidClient.subscribe("get_patient", qos);
                         Log.d(TAG, "onSuccess: ");
 
-                    } catch (MqttException e) {
+                    } catch (MqttException e)
+                    {
                         e.printStackTrace();
                     }
                 }
@@ -198,7 +211,8 @@ public class DoctorProfileFragment extends BaseFragment
                     Toast.makeText(getActivity(), "Something went wrong, please try again", Toast.LENGTH_SHORT).show();
                 }
             });
-        } catch (MqttException e) {
+        } catch (MqttException e)
+        {
             e.printStackTrace();
         }
     }

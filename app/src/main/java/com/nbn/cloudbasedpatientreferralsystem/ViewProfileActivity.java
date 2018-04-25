@@ -1,5 +1,6 @@
 package com.nbn.cloudbasedpatientreferralsystem;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -47,6 +48,7 @@ public class ViewProfileActivity extends BaseActivity
     TextView tvDob;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+
     LinearLayoutManager linearLayoutManager;
     private ArrayList<DocumentInfo> docs = new ArrayList<>();
     private CustomRecyclerAdapter adapter;
@@ -60,94 +62,109 @@ public class ViewProfileActivity extends BaseActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_profile);
         ButterKnife.bind(this);
-
+        linearLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(linearLayoutManager);
         Intent i = getIntent();
         Bundle b = i.getBundleExtra(Constants.KEY_BUNDLE);
         String intentString = b.getString(Constants.KEY_LOGIN_INTENT);
         uid = b.getString(Constants.KEY_VIEW_ID);
         Log.d(TAG, "onCreate: " + uid);
-
-        rootDatabaseReference.child(ROOT_PATIENTS).child(uid).child(PATIENT_INFO).addListenerForSingleValueEvent(new ValueEventListener()
-        {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
-            {
-                if (dataSnapshot.getValue(PatientProfile.class) != null)
+        final ProgressDialog dialog = ProgressDialog.show(this, "",
+                "Loading. Please wait...", true);
+        dialog.show();
+        Log.d(TAG, "onCreate: Intent String :: "+intentString);
+        if(intentString!=null) {
+            if(intentString.equals(VALUE_LOGIN_INTENT_PATIENT)) {
+                recyclerView.setVisibility(View.VISIBLE);
+                rootDatabaseReference.child(ROOT_PATIENTS).child(uid).child(PATIENT_INFO).addListenerForSingleValueEvent(new ValueEventListener()
                 {
-                    patientProfile = dataSnapshot.getValue(PatientProfile.class);
-                    if (patientProfile != null)
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot)
                     {
-                        tvName.setText("Name : " + patientProfile.getName());
-                        tvContact.setText("Contact : " + patientProfile.getContactNo());
-                        tvEmail.setText("Email ID : " + patientProfile.getEmail());
-                        tvGender.setText("Gender : " + patientProfile.getGender());
-                        tvDob.setText("Date of Birth : " + patientProfile.getDob());
-                        Log.d(TAG, "onDataChange: " + patientProfile);
-                    }
-                    rootDatabaseReference
-                            .child(ROOT_PATIENTS)
-                            .child(uid)
-                            .child(PATIENT_DOCS)
-                            .addValueEventListener(new ValueEventListener()
+                        if (dataSnapshot.getValue(PatientProfile.class) != null)
+                        {
+                            patientProfile = dataSnapshot.getValue(PatientProfile.class);
+                            if (patientProfile != null)
                             {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot)
-                                {
-                                    docs.clear();
-                                    Log.d(TAG, "onPhotoDataChange: " + dataSnapshot.getChildrenCount());
-                                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren())
+                                tvName.setText("Name : " + patientProfile.getName());
+                                tvContact.setText("Contact : " + patientProfile.getContactNo());
+                                tvEmail.setText("Email ID : " + patientProfile.getEmail());
+                                tvGender.setText("Gender : " + patientProfile.getGender());
+                                tvDob.setText("Date of Birth : " + patientProfile.getDob());
+                                Log.d(TAG, "onDataChange: " + patientProfile);
+                            }
+                            rootDatabaseReference
+                                    .child(ROOT_PATIENTS)
+                                    .child(uid)
+                                    .child(PATIENT_DOCS)
+                                    .addValueEventListener(new ValueEventListener()
                                     {
-                                        DocumentInfo doc = postSnapshot.getValue(DocumentInfo.class);
-                                        docs.add(doc);
-                                    }
-                                    adapter = new CustomRecyclerAdapter(ViewProfileActivity.this, docs);
-                                    recyclerView.setAdapter(adapter);
-                                    //@TODO Set Progress bar here
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot)
+                                        {
+                                            docs.clear();
+                                            Log.d(TAG, "onPhotoDataChange: " + dataSnapshot.getChildrenCount());
+                                            for (DataSnapshot postSnapshot : dataSnapshot.getChildren())
+                                            {
+                                                DocumentInfo doc = postSnapshot.getValue(DocumentInfo.class);
+                                                docs.add(doc);
+                                            }
+                                            adapter = new CustomRecyclerAdapter(ViewProfileActivity.this, docs);
+                                            recyclerView.setAdapter(adapter);
+                                            //@TODO Set Progress bar here
+                                            dialog.hide();
 
-                                }
+                                        }
 
-                                @Override
-                                public void onCancelled(DatabaseError databaseError)
-                                {
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError)
+                                        {
 
-                                }
-                            });
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError)
-            {
-
-            }
-        });
-
-        rootDatabaseReference.child(ROOT_DOCTORS).child(uid).child(DOCTOR_INFO).addListenerForSingleValueEvent(new ValueEventListener()
-        {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
-            {
-                if (dataSnapshot.getValue(DoctorProfile.class) != null)
-                {
-                    doctorProfile = dataSnapshot.getValue(DoctorProfile.class);
-                    if (doctorProfile != null)
-                    {
-                        tvName.setText("Name : " + doctorProfile.getName());
-                        tvContact.setText("Contact : " + doctorProfile.getContactNo());
-                        tvEmail.setText("Email ID : " + doctorProfile.getEmail());
-                        tvGender.setText("Gender : " + doctorProfile.getGender());
-                        tvDob.setText("Specialization : " + doctorProfile.getSpecialization());
+                                        }
+                                    });
+                        }
                     }
 
-                }
-            }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError)
+                    {
 
-            @Override
-            public void onCancelled(DatabaseError databaseError)
-            {
+                    }
+                });
+            } else {
+                rootDatabaseReference.child(ROOT_DOCTORS).child(uid).child(DOCTOR_INFO).addListenerForSingleValueEvent(new ValueEventListener()
+                {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot)
+                    {
+                        if (dataSnapshot.getValue(DoctorProfile.class) != null)
+                        {
+                            doctorProfile = dataSnapshot.getValue(DoctorProfile.class);
+                            if (doctorProfile != null)
+                            {
+                                tvName.setText("Name : " + doctorProfile.getName());
+                                tvContact.setText("Contact : " + doctorProfile.getContactNo());
+                                tvEmail.setText("Email ID : " + doctorProfile.getEmail());
+                                tvGender.setText("Gender : " + doctorProfile.getGender());
+                                tvDob.setText("Specialization : " + doctorProfile.getSpecialization());
+                            }
+                            recyclerView.setVisibility(View.INVISIBLE);
+                            dialog.hide();
 
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError)
+                    {
+
+                    }
+                });
             }
-        });
+        }
+
+
+
 
         /*if (patientProfile != null && doctorProfile != null)
         {

@@ -30,7 +30,7 @@ public class CustomRecyclerAdapter extends RecyclerView.Adapter<CustomRecyclerAd
     public CustomRecyclerAdapter(Context context, ArrayList<DocumentInfo> docs) {
         this.docs = docs;
         this.context = context;
-        Log.d(TAG, "CustomRecyclerAdapter: ");
+        Log.d(TAG, "CustomRecyclerAdapter: "+docs.size());
     }
 
     @Override

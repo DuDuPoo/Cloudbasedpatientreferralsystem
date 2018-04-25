@@ -23,8 +23,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.nbn.cloudbasedpatientreferralsystem.R;
 import com.nbn.cloudbasedpatientreferralsystem.ViewProfileActivity;
 import com.nbn.cloudbasedpatientreferralsystem.base.BaseFragment;
-import com.nbn.cloudbasedpatientreferralsystem.doctor.EditProfileDoctor;
-import com.nbn.cloudbasedpatientreferralsystem.pojo.DoctorProfile;
 import com.nbn.cloudbasedpatientreferralsystem.pojo.DocumentInfo;
 import com.nbn.cloudbasedpatientreferralsystem.pojo.PatientProfile;
 import com.nbn.cloudbasedpatientreferralsystem.utils.Constants;
@@ -68,7 +66,11 @@ public class PatientProfileFragment extends BaseFragment
         docs = new ArrayList<>();
         user = FirebaseAuth.getInstance().getCurrentUser();
         final View rootView = inflater.inflate(R.layout.fragment_patient_profile, container, false);
-        databaseReference = rootDatabaseReference.child(Constants.ROOT_PATIENTS).child(user.getUid()).child(Constants.PATIENT_INFO).getRef();
+        databaseReference = rootDatabaseReference
+                .child(Constants.ROOT_PATIENTS)
+                .child(user.getUid())
+                .child(Constants.PATIENT_INFO)
+                .getRef();
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener()
         {
             @Override
