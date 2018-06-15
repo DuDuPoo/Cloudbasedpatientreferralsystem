@@ -61,7 +61,12 @@ public class DoctorListAdapter extends RecyclerView.Adapter<DoctorListAdapter.Do
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot)
                     {
-                        myUserChatRefs.add(dataSnapshot.getValue(String.class));
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren())
+                        {
+                            // Get Patient Profile here
+                            myUserChatRefs.add(postSnapshot.getValue(String.class));
+                        }
+//                        myUserChatRefs.add(dataSnapshot.getValue(String.class));
                     }
 
                     @Override
